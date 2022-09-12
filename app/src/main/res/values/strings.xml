@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">TicTacToe</string>
+    <string name="title">Tic Tac Toe</string>
+    <string name="main_screen_description">Dokonaj wyboru rozgrywki</string>
+    <string name="menu_1">Offline</string>
+    <string name="menu_2">Online</string>
+</resources>
