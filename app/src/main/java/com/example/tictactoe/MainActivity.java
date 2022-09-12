@@ -8,6 +8,9 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -19,6 +22,12 @@ public class MainActivity extends AppCompatActivity {
 
         Play(Game_Offline, "0"); //gamemode 0
         Play(Game_Online, "1"); //gamemode 1
+
+        // Write a message to the database
+        FirebaseDatabase database = FirebaseDatabase.getInstance("https://tictactoe-e317b-default-rtdb.firebaseio.com/");
+        DatabaseReference myRef = database.getReference("message");
+
+        myRef.setValue("Hello, World!");
     }
 
     private void Play(Button Btn, String gamemode)

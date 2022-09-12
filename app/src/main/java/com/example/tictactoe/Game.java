@@ -20,6 +20,7 @@ import java.util.Objects;
 public class Game extends AppCompatActivity {
 
     String gamemode;
+    Boolean your_turn;
     public enum Player{
         X, O
     }
@@ -43,9 +44,9 @@ public class Game extends AppCompatActivity {
 
         if(Objects.equals(this.gamemode, "0"))
         {
-            //offline
+            your_turn = true;
         }else{
-            //online
+            your_turn = true;
         }
     }
 
@@ -73,23 +74,24 @@ public class Game extends AppCompatActivity {
 
         LinearLayout plate = (LinearLayout) view;
 
-        if (board[i][j] == 0 && player == Player.X) {
-
+        if(your_turn && board[i][j] == 0)
+        {
             TextView player1 = (TextView) findViewById(R.id.player_1_text);
-            player1.setText("grasz");
             TextView player2 = (TextView) findViewById(R.id.player_2_text);
-            player2.setText("");
-
+            String player1_text = player == Player.X ? "grasz" : "";
+            String player2_text = player == Player.O ? "grasz" : "";
+            player1.setText(player1_text);
+            player2.setText(player2_text);
 
             ImageView v = new ImageView(Game.this);
             v.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
-            v.setImageResource(R.drawable.ic_outline_superscript_24);
+            v.setImageResource( player == Player.X ? R.drawable.ic_outline_superscript_24 : R.drawable.circle);
             v.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            board[i][j] = 1;
+            board[i][j] = player == Player.X ? 1 : -1;
 
             if(check())
             {
-                String winner = "X";
+                String winner = player == Player.X ? "X" : "O";
                 Intent end_intent = new Intent(this, PlayOrEnd.class);
                 end_intent.putExtra("winner", winner);
                 startActivity(end_intent);
@@ -100,39 +102,16 @@ public class Game extends AppCompatActivity {
                 end_intent.putExtra("winner", winner);
                 startActivity(end_intent);
             }
-            player = Player.O;
-            plate.addView(v);
-        } else if (board[i][j] == 0 && player == Player.O) {
 
-            TextView player1 = (TextView) findViewById(R.id.player_1_text);
-            player1.setText("");
-            TextView player2 = (TextView) findViewById(R.id.player_2_text);
-            player2.setText("grasz");
-
-            ImageView v = new ImageView(Game.this);
-            v.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
-            v.setImageResource(R.drawable.circle);
-            v.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            board[i][j] = -1;
-
-            if(check())
+            if(Objects.equals(this.gamemode, "0"))
             {
-                String winner = "O";
-                Intent end_intent = new Intent(this, PlayOrEnd.class);
-                end_intent.putExtra("winner", winner);
-                startActivity(end_intent);
+                player = player == Player.X ? Player.O : Player.X;
+            }else{
+                your_turn = false;
             }
-            else if(checkForTie()){
-                String winner = "TIE";
-                Intent end_intent = new Intent(this, PlayOrEnd.class);
-                end_intent.putExtra("winner", winner);
-                startActivity(end_intent);
-            }
-            player = Player.X;
+
             plate.addView(v);
         }
-
-
     }
 
     private Boolean checkForTie()
