@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Write a message to the database
         FirebaseDatabase database = FirebaseDatabase.getInstance("https://tictactoe-e317b-default-rtdb.firebaseio.com/");
-        DatabaseReference myRef = database.getReference("message");
+        DatabaseReference myRef = database.getReference("message2");
 
         myRef.setValue("Hello, World!");
     }
@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private void Play(Button Btn, String gamemode)
     {
         Btn.setOnClickListener(view -> {
-            Intent game_intent = new Intent(this, Game.class);
+            Intent game_intent = new Intent(this, Naming.class);
             game_intent.putExtra("gamemode", gamemode);
             startActivity(game_intent);
         });

@@ -1,0 +1,37 @@
+package com.example.tictactoe;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+
+public class Naming extends AppCompatActivity {
+
+    private String gamemode = "";
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_naming);
+
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            gamemode = extras.getString("gamemode");
+        }
+    }
+
+    public void play(View v){
+        EditText naming_edit = findViewById(R.id.nickname);
+        String name = naming_edit.getText().toString();
+
+        Log.d("name", name);
+        Intent game_intent = new Intent(this, Game.class);
+        game_intent.putExtra("gamemode", gamemode);
+        game_intent.putExtra("nickname", name);
+        startActivity(game_intent);
+    }
+}

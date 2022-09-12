@@ -1,5 +1,6 @@
 package com.example.tictactoe;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -15,7 +16,16 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.util.Objects;
+
+
+
 
 public class Game extends AppCompatActivity {
 
@@ -26,10 +36,21 @@ public class Game extends AppCompatActivity {
     }
     Player player = Player.X;
     int[][] board = new int[3][3];
+
+    FirebaseDatabase database = FirebaseDatabase.getInstance();
+    DatabaseReference con = database.getReferenceFromUrl("https://tictactoe-e317b-default-rtdb.firebaseio.com/");
+
+    private String player_id = "0";
+    private Boolean playerFound = false;
+
+    private String oponent_id = "0";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
+        player_id = String.valueOf(System.currentTimeMillis());
+
 
 
         TextView player1 = (TextView) findViewById(R.id.player_1_text);
@@ -46,6 +67,19 @@ public class Game extends AppCompatActivity {
         {
             your_turn = true;
         }else{
+
+            con.child("cons").addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+
             your_turn = true;
         }
     }
