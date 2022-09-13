@@ -22,12 +22,6 @@ public class MainActivity extends AppCompatActivity {
 
         Play(Game_Offline, "0"); //gamemode 0
         Play(Game_Online, "1"); //gamemode 1
-
-        // Write a message to the database
-        FirebaseDatabase database = FirebaseDatabase.getInstance("https://tictactoe-e317b-default-rtdb.firebaseio.com/");
-        DatabaseReference myRef = database.getReference("message2");
-
-        myRef.setValue("Hello, World!");
     }
 
     private void Play(Button Btn, String gamemode)

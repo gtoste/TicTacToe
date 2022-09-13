@@ -16,7 +16,7 @@ public class Naming extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_naming);
-
+        Log.d("s", "?: ");
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -28,7 +28,6 @@ public class Naming extends AppCompatActivity {
         EditText naming_edit = findViewById(R.id.nickname);
         String name = naming_edit.getText().toString();
 
-        Log.d("name", name);
         Intent game_intent = new Intent(this, Game.class);
         game_intent.putExtra("gamemode", gamemode);
         game_intent.putExtra("nickname", name);
