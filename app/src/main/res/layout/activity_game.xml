@@ -36,6 +36,7 @@
                         android:layout_height="wrap_content"
                         android:textSize="16dp"
                         android:text="Player 1"
+                        android:id="@+id/playerO"
                         android:textAlignment="center"
                         />
                     <TextView
@@ -73,6 +74,7 @@
                     android:layout_height="wrap_content"
                     android:textSize="16dp"
                     android:text="Player 2"
+                    android:id="@+id/playerX"
                     android:textAlignment="center"
                     />
                 <TextView

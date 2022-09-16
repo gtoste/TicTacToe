@@ -42,29 +42,34 @@ public class Game extends AppCompatActivity {
     Player player = Player.X;
     int[][] board = new int[3][3];
 
+    TextView playerX;
+    TextView playerO;
 
     private String playerId = "0";
     private String player_name = "";
-    private Boolean oponentFound = false;
-    private String connectionId = "";
-    private String oponent_id = "0";
-    private String status = "matching";
+    private String gameId = "";
 
     private ValueEventListener turnsEventListener, winEventListener;
+
+    FirebaseDatabase database;
+    DatabaseReference databaseReference;
+    boolean found = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
+        playerO = findViewById(R.id.playerO);
+        playerX = findViewById(R.id.playerX);
         TextView player1 = (TextView) findViewById(R.id.player_1_text);
         player1.setText("");
         TextView player2 = (TextView) findViewById(R.id.player_2_text);
         player2.setText("grasz");
 
-        FirebaseDatabase database = FirebaseDatabase.getInstance("https://tictactoe-e317b-default-rtdb.firebaseio.com/");
-        DatabaseReference databaseReference = database.getReference("database");
 
+        database = FirebaseDatabase.getInstance("https://tictactoe-e317b-default-rtdb.firebaseio.com/");
+        databaseReference = database.getReference("database");
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -81,43 +86,50 @@ public class Game extends AppCompatActivity {
 
         if(Objects.equals(this.gamemode, "0"))
         {
+            player = Player.X;
             your_turn = true;
         }else
         {
-            databaseReference.addValueEventListener(new ValueEventListener() {
+            databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot)
+                {
                     DataSnapshot games = dataSnapshot.child("games");
-                    int gamesCount = (int)games.getChildrenCount();
-
-                    //create new game
-                    if(gamesCount == 0)
+                    for(DataSnapshot game : games.getChildren())
                     {
-                        String gameId = String.valueOf(System.currentTimeMillis());
-                        databaseReference.child("games").child(gameId).child(playerId).setValue(player_name);
-                        databaseReference.child("games").child(gameId).child("board").child("00").setValue(0);
-                        databaseReference.child("games").child(gameId).child("board").child("01").setValue(0);
-                        databaseReference.child("games").child(gameId).child("board").child("02").setValue(0);
-                        databaseReference.child("games").child(gameId).child("board").child("10").setValue(0);
-                        databaseReference.child("games").child(gameId).child("board").child("11").setValue(0);
-                        databaseReference.child("games").child(gameId).child("board").child("12").setValue(0);
-                        databaseReference.child("games").child(gameId).child("board").child("20").setValue(0);
-                        databaseReference.child("games").child(gameId).child("board").child("21").setValue(0);
-                        databaseReference.child("games").child(gameId).child("board").child("22").setValue(0);
-
-                    }else{
-                        for(DataSnapshot game : games.getChildren())
+                        //if room open
+                        if(game.getChildrenCount() < 3)
                         {
-                            if(game.getChildrenCount() < 3)
-                            {
-                                String gameId = game.getKey();
-                                databaseReference.child("games").child(gameId).child(playerId).setValue(player_name);
-                            }
+                            gameId = game.getKey();
+                            databaseReference.child("games").child(gameId).child(playerId).setValue(player_name);
+                            playerX.setText(player_name);
+                            found = true;
                         }
-
                     }
 
+                    if(!found)
+                    {
+                        //create new room
+                        gameId = String.valueOf(System.currentTimeMillis());
+                        databaseReference.child("games").child(gameId).child(playerId).setValue(player_name);
+                        databaseReference.child("games").child(gameId).child("last_move").setValue("null");
+                        playerO.setText(player_name);
+                        found = true;
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+
+            DatabaseReference match = databaseReference.child("games").child(gameId);
+            match.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    Log.d("test", dataSnapshot.child(gameId).getKey());
+                    Log.d("test", (String) dataSnapshot.child(gameId).getValue());
 
                 }
 
@@ -139,9 +151,7 @@ public class Game extends AppCompatActivity {
         if(board[0][1] == board[1][1] && board[1][1] ==  board[2][1] && board[0][1] != 0) return true;
         if(board[0][2] == board[1][2] && board[1][2] ==  board[2][2] && board[0][2] != 0) return true;
         if(board[0][0] == board[1][1] && board[1][1] ==  board[2][2] && board[0][0] != 0) return true;
-        if(board[0][2] == board[1][1] && board[1][1] ==  board[2][0] && board[0][2] != 0) return true;
-
-        return false;
+        return board[0][2] == board[1][1] && board[1][1] == board[2][0] && board[0][2] != 0;
     }
 
     private void showAlert(String message)
@@ -170,12 +180,12 @@ public class Game extends AppCompatActivity {
 
         if(your_turn && board[i][j] == 0)
         {
-            TextView player1 = (TextView) findViewById(R.id.player_1_text);
-            TextView player2 = (TextView) findViewById(R.id.player_2_text);
-            String player1_text = player == Player.X ? "grasz" : "";
-            String player2_text = player == Player.O ? "grasz" : "";
-            player1.setText(player1_text);
-            player2.setText(player2_text);
+            TextView playerX = (TextView) findViewById(R.id.player_1_text);
+            TextView playerO = (TextView) findViewById(R.id.player_2_text);
+            String playerX_text = player == Player.X ? "grasz" : "";
+            String playerO_text = player == Player.O ? "grasz" : "";
+            playerX.setText(playerX_text);
+            playerO.setText(playerO_text);
 
             ImageView v = new ImageView(Game.this);
             v.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
@@ -202,6 +212,8 @@ public class Game extends AppCompatActivity {
                 player = player == Player.X ? Player.O : Player.X;
             }else{
                 your_turn = false;
+                databaseReference.child("games").child(gameId).child("last_move").child("row").setValue(String.valueOf(i));
+                databaseReference.child("games").child(gameId).child("last_move").child("col").setValue(String.valueOf(j));
             }
 
             plate.addView(v);
