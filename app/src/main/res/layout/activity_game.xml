@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".Game"
-    android:background="@drawable/background"
-    >
+    android:background="@drawable/background">
 
 
 
@@ -16,26 +14,26 @@
         android:layout_height="match_parent"
         android:layout_weight="4"
         android:orientation="horizontal"
-        >
+        android:baselineAligned="false">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                >
+                tools:ignore="NestedWeights">
 
                 <LinearLayout
                     android:layout_width="100dp"
                     android:layout_height="120dp"
                     android:background="#00ff77"
                     android:orientation="vertical"
-                    >
+                    tools:ignore="UselessParent">
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textSize="16dp"
-                        android:text="Player 1"
+                        android:textSize="16sp"
+                        android:text="@string/player_1"
                         android:id="@+id/playerO"
                         android:textAlignment="center"
                         />
@@ -51,7 +49,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:src="@drawable/circle"
-                        />
+                        android:contentDescription="@string/circle" />
 
                 </LinearLayout>
 
@@ -68,12 +66,12 @@
                 android:layout_height="120dp"
                 android:orientation="vertical"
                 android:background="@color/design_default_color_error"
-                >
+                tools:ignore="UselessParent">
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="16dp"
-                    android:text="Player 2"
+                    android:textSize="16sp"
+                    android:text="@string/player_2"
                     android:id="@+id/playerX"
                     android:textAlignment="center"
                     />
@@ -89,7 +87,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:src="@drawable/ic_outline_superscript_24"
-                    />
+                    android:contentDescription="@string/x" />
             </LinearLayout>
 
         </LinearLayout>
@@ -108,7 +106,9 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:orientation="horizontal"
-            >
+            tools:ignore="NestedWeights"
+            android:baselineAligned="false">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -118,7 +118,8 @@
                 android:onClick="onClick"
                 android:tag="00"
                 android:id="@+id/p00"
-                ></LinearLayout>
+                android:orientation="horizontal"
+                tools:ignore="NestedWeights,UsingOnClickInXml" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -129,7 +130,8 @@
                 android:onClick="onClick"
                 android:tag="01"
                 android:id="@+id/p01"
-                ></LinearLayout>
+                android:orientation="horizontal"
+                tools:ignore="UsingOnClickInXml" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -140,7 +142,8 @@
                 android:onClick="onClick"
                 android:tag="02"
                 android:id="@+id/p02"
-                ></LinearLayout>
+                android:orientation="horizontal"
+                tools:ignore="UsingOnClickInXml" />
         </LinearLayout>
 
         <LinearLayout
@@ -148,7 +151,8 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:orientation="horizontal"
-            >
+            android:baselineAligned="false">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -158,7 +162,8 @@
                 android:onClick="onClick"
                 android:tag="10"
                 android:id="@+id/p10"
-                ></LinearLayout>
+                android:orientation="horizontal"
+                tools:ignore="UsingOnClickInXml" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -169,7 +174,8 @@
                 android:onClick="onClick"
                 android:tag="11"
                 android:id="@+id/p11"
-                ></LinearLayout>
+                android:orientation="horizontal"
+                tools:ignore="UsingOnClickInXml" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -180,7 +186,8 @@
                 android:onClick="onClick"
                 android:tag="12"
                 android:id="@+id/p12"
-                ></LinearLayout>
+                android:orientation="horizontal"
+                tools:ignore="UsingOnClickInXml" />
         </LinearLayout>
 
         <LinearLayout
@@ -188,7 +195,8 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:orientation="horizontal"
-            >
+            android:baselineAligned="false">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -198,7 +206,8 @@
                 android:onClick="onClick"
                 android:tag="20"
                 android:id="@+id/p20"
-                ></LinearLayout>
+                android:orientation="horizontal"
+                tools:ignore="UsingOnClickInXml" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -209,7 +218,8 @@
                 android:onClick="onClick"
                 android:tag="21"
                 android:id="@+id/p21"
-                ></LinearLayout>
+                android:orientation="horizontal"
+                tools:ignore="UsingOnClickInXml" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -220,7 +230,8 @@
                 android:onClick="onClick"
                 android:tag="22"
                 android:id="@+id/p22"
-                ></LinearLayout>
+                android:orientation="horizontal"
+                tools:ignore="UsingOnClickInXml" />
         </LinearLayout>
 
     </LinearLayout>
