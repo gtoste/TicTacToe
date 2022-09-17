@@ -36,6 +36,7 @@
                         android:layout_height="wrap_content"
                         android:textSize="16dp"
                         android:text="Player 1"
+                        android:id="@+id/playerO"
                         android:textAlignment="center"
                         />
                     <TextView
@@ -73,6 +74,7 @@
                     android:layout_height="wrap_content"
                     android:textSize="16dp"
                     android:text="Player 2"
+                    android:id="@+id/playerX"
                     android:textAlignment="center"
                     />
                 <TextView
@@ -115,6 +117,7 @@
                 android:layout_margin="2dp"
                 android:onClick="onClick"
                 android:tag="00"
+                android:id="@+id/p00"
                 ></LinearLayout>
 
             <LinearLayout
@@ -125,6 +128,7 @@
                 android:layout_margin="2dp"
                 android:onClick="onClick"
                 android:tag="01"
+                android:id="@+id/p01"
                 ></LinearLayout>
 
             <LinearLayout
@@ -135,6 +139,7 @@
                 android:layout_margin="2dp"
                 android:onClick="onClick"
                 android:tag="02"
+                android:id="@+id/p02"
                 ></LinearLayout>
         </LinearLayout>
 
@@ -152,6 +157,7 @@
                 android:layout_margin="2dp"
                 android:onClick="onClick"
                 android:tag="10"
+                android:id="@+id/p10"
                 ></LinearLayout>
 
             <LinearLayout
@@ -162,6 +168,7 @@
                 android:layout_margin="2dp"
                 android:onClick="onClick"
                 android:tag="11"
+                android:id="@+id/p11"
                 ></LinearLayout>
 
             <LinearLayout
@@ -172,6 +179,7 @@
                 android:layout_margin="2dp"
                 android:onClick="onClick"
                 android:tag="12"
+                android:id="@+id/p12"
                 ></LinearLayout>
         </LinearLayout>
 
@@ -189,6 +197,7 @@
                 android:layout_margin="2dp"
                 android:onClick="onClick"
                 android:tag="20"
+                android:id="@+id/p20"
                 ></LinearLayout>
 
             <LinearLayout
@@ -199,6 +208,7 @@
                 android:layout_margin="2dp"
                 android:onClick="onClick"
                 android:tag="21"
+                android:id="@+id/p21"
                 ></LinearLayout>
 
             <LinearLayout
@@ -209,6 +219,7 @@
                 android:layout_margin="2dp"
                 android:onClick="onClick"
                 android:tag="22"
+                android:id="@+id/p22"
                 ></LinearLayout>
         </LinearLayout>
 

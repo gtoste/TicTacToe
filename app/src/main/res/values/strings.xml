@@ -4,4 +4,6 @@
     <string name="main_screen_description">Dokonaj wyboru rozgrywki</string>
     <string name="menu_1">Offline</string>
     <string name="menu_2">Online</string>
+    <string name="namingButton">Play</string>
+    <string name="namingInputText">Nickname…</string>
 </resources>
