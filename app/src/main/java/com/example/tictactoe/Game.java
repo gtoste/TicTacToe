@@ -1,8 +1,11 @@
 package com.example.tictactoe;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -19,6 +22,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 
@@ -40,13 +45,12 @@ public class Game extends AppCompatActivity {
     private String playerId = "0";
     private String player_name = "";
     private String gameId = "";
+    private String opponentNick = "";
     private final String turn = "turn";
 
     FirebaseDatabase database = FirebaseDatabase.getInstance("https://tictactoe-e317b-default-rtdb.firebaseio.com/");
     DatabaseReference databaseReference = database.getReference("database");
     boolean found = false;
-
-
 
 
     @SuppressLint("SetTextI18n")
@@ -92,6 +96,15 @@ public class Game extends AppCompatActivity {
                         if(game.child("players").getChildrenCount() < 2)
                         {
                             gameId = game.getKey();
+                            for( DataSnapshot player : game.child("players").getChildren() )
+                            {
+                                String userName =  player.getValue(String.class);
+                                if(!playerId.equals(player.getKey()))
+                                {
+                                    opponentNick = userName;
+                                    playerX.setText(opponentNick);
+                                }
+                            }
                             databaseReference.child("games").child(gameId).child("players").child(playerId).setValue(player_name);
                             playerO.setText(player_name);
                             player = Player.O;
@@ -105,7 +118,10 @@ public class Game extends AppCompatActivity {
                         //create new room
                         gameId = String.valueOf(System.currentTimeMillis());
                         databaseReference.child("games").child(gameId).child("players").child(playerId).setValue(player_name);
-                        databaseReference.child("games").child(gameId).child("last_move").setValue("null");
+                        List<Integer> moves = new ArrayList<>();
+                        moves.add(-1);
+                        moves.add(-1);
+                        databaseReference.child("games").child(gameId).child("last_move").setValue(moves);
                         playerX.setText(player_name);
                         player = Player.X;
                         found = true;
@@ -113,26 +129,52 @@ public class Game extends AppCompatActivity {
                     }
 
                     DatabaseReference match = databaseReference.child("games").child(gameId).getRef();
-                    Log.d("matchInfo", String.valueOf(match));
+
                     match.addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            Log.d("matchInfo", String.valueOf(dataSnapshot));
 
                             int getOpponentsCount = (int)dataSnapshot.child("players").getChildrenCount();
                             if(getOpponentsCount == 2)
                             {
                                 for (DataSnapshot player : dataSnapshot.child("players").getChildren())
                                 {
-                                    if(!Objects.equals(player.getKey(), playerId))
+                                    if(!Objects.equals(player.getKey(), playerId) && opponentNick.equals(""))
                                     {
-                                        playerO.setText(String.valueOf(player.getValue()));
+                                        opponentNick = String.valueOf(player.getValue());
+                                        playerO.setText(opponentNick);
                                     }
                                 }
 
                                 progressDialog.dismiss();
                             }
+                            int i,j;
 
+                            i = Integer.parseInt(String.valueOf(dataSnapshot.child("last_move").child("0").getValue()));
+                            j = Integer.parseInt(String.valueOf(dataSnapshot.child("last_move").child("1").getValue()));
+
+                            if(i != -1 && j != -1 && board[i][j] == 0)
+                            {
+                                String plateID = "p" + i + "" + j;
+                                LinearLayout plate = (LinearLayout) findViewById(getResources().getIdentifier(plateID, "id", getPackageName()));
+                                board[i][j] = player == Player.X ? -1 : 1;
+                                ImageView v = new ImageView(Game.this);
+                                v.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+                                v.setImageResource( player == Player.O ? R.drawable.ic_outline_superscript_24 : R.drawable.circle);
+                                v.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                                plate.addView(v);
+
+                                if( check() )
+                                {
+                                    endDialog("Lost!", "Player " + opponentNick + " got lucky this time!").show();
+                                }else if(checkForTie())
+                                {
+                                    endDialog("Tie!", "You have almost won!").show();
+                                }
+
+                                your_turn = true;
+                                changeTurns(true);
+                            }
                         }
                         @Override
                         public void onCancelled(@NonNull DatabaseError databaseError) {
@@ -149,6 +191,40 @@ public class Game extends AppCompatActivity {
         }
     }
 
+
+    private AlertDialog endDialog(String title, String message)
+    {
+        AlertDialog alertDialog = new AlertDialog.Builder(Game.this).create();
+        alertDialog.setTitle(title);
+        alertDialog.setMessage(message);
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                (dialog, which) -> {
+                    databaseReference.child("games").child(gameId).child("players").removeValue();
+                    Intent intent = new Intent(Game.this, MainActivity.class);
+                    startActivity(intent);
+                    finish();
+                });
+        return alertDialog;
+    }
+
+    private void changeTurns(Boolean opponentTurn)
+    {
+        TextView playerX = findViewById(R.id.player_1_text);
+        TextView playerO = findViewById(R.id.player_2_text);
+        String playerX_text = "";
+        String playerO_text = "";
+        if(!opponentTurn)
+        {
+            playerX_text = player == Player.X ? turn : "";
+            playerO_text = player == Player.O ? turn : "";
+        }else{
+            playerX_text = player == Player.O ? turn : "";
+            playerO_text = player == Player.X ? turn : "";
+        }
+
+        playerX.setText(playerX_text);
+        playerO.setText(playerO_text);
+    }
 
     public Boolean check()
     {
@@ -169,16 +245,13 @@ public class Game extends AppCompatActivity {
         int i = ID.charAt(0) - 48;
         int j = ID.charAt(1) - 48;
 
+        changeTurns(false);
+
         LinearLayout plate = (LinearLayout) view;
 
         if(your_turn && board[i][j] == 0)
         {
-            TextView playerX = findViewById(R.id.player_1_text);
-            TextView playerO = findViewById(R.id.player_2_text);
-            String playerX_text = player == Player.X ? turn : "";
-            String playerO_text = player == Player.O ? turn : "";
-            playerX.setText(playerX_text);
-            playerO.setText(playerO_text);
+
 
             ImageView v = new ImageView(Game.this);
             v.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
@@ -188,16 +261,26 @@ public class Game extends AppCompatActivity {
 
             if(check())
             {
-                String winner = player == Player.X ? "X" : "O";
-                Intent end_intent = new Intent(this, PlayOrEnd.class);
-                end_intent.putExtra("winner", winner);
-                startActivity(end_intent);
+                if(gamemode.equals("0"))
+                {
+                    String winner = player == Player.X ? "X" : "O";
+                    Intent end_intent = new Intent(this, PlayOrEnd.class);
+                    end_intent.putExtra("winner", winner);
+                    startActivity(end_intent);
+                }else{
+                    endDialog("Win!", "You're clearly better than " + opponentNick).show();
+                }
             }
             else if(checkForTie()){
-                String winner = "TIE";
-                Intent end_intent = new Intent(this, PlayOrEnd.class);
-                end_intent.putExtra("winner", winner);
-                startActivity(end_intent);
+                if(gamemode.equals("0"))
+                {
+                    String winner = "Tie";
+                    Intent end_intent = new Intent(this, PlayOrEnd.class);
+                    end_intent.putExtra("winner", winner);
+                    startActivity(end_intent);
+                }else{
+                    endDialog("Tie!", "You have almost won!").show();
+                }
             }
 
             if(Objects.equals(this.gamemode, "0"))
@@ -205,8 +288,10 @@ public class Game extends AppCompatActivity {
                 player = player == Player.X ? Player.O : Player.X;
             }else{
                 your_turn = false;
-                databaseReference.child("games").child(gameId).child("last_move").child("row").setValue(String.valueOf(i));
-                databaseReference.child("games").child(gameId).child("last_move").child("col").setValue(String.valueOf(j));
+                List<Integer> moves = new ArrayList<Integer>();
+                moves.add(i);
+                moves.add(j);
+                databaseReference.child("games").child(gameId).child("last_move").setValue(moves);
             }
 
             plate.addView(v);
