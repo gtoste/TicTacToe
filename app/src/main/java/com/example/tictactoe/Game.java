@@ -1,24 +1,17 @@
 package com.example.tictactoe;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.app.AlertDialog;
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.drawable.AnimatedImageDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.PopupWindow;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -26,7 +19,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.EventListener;
 import java.util.Objects;
 
 
@@ -48,13 +40,16 @@ public class Game extends AppCompatActivity {
     private String playerId = "0";
     private String player_name = "";
     private String gameId = "";
+    private final String turn = "turn";
 
-    private ValueEventListener turnsEventListener, winEventListener;
-
-    FirebaseDatabase database;
-    DatabaseReference databaseReference;
+    FirebaseDatabase database = FirebaseDatabase.getInstance("https://tictactoe-e317b-default-rtdb.firebaseio.com/");
+    DatabaseReference databaseReference = database.getReference("database");
     boolean found = false;
 
+
+
+
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,14 +57,10 @@ public class Game extends AppCompatActivity {
 
         playerO = findViewById(R.id.playerO);
         playerX = findViewById(R.id.playerX);
-        TextView player1 = (TextView) findViewById(R.id.player_1_text);
+        TextView player1 = findViewById(R.id.player_1_text);
         player1.setText("");
-        TextView player2 = (TextView) findViewById(R.id.player_2_text);
-        player2.setText("grasz");
-
-
-        database = FirebaseDatabase.getInstance("https://tictactoe-e317b-default-rtdb.firebaseio.com/");
-        databaseReference = database.getReference("database");
+        TextView player2 = findViewById(R.id.player_2_text);
+        player2.setText(turn);
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -77,19 +68,20 @@ public class Game extends AppCompatActivity {
             this.player_name = extras.getString("nickname");
         }
 
-        playerId = String.valueOf(System.currentTimeMillis());
-
-//        ProgressDialog progressDialog = new ProgressDialog(this);
-//        progressDialog.setCancelable(false);
-//        progressDialog.setMessage("Waiting for oponent");
-//        progressDialog.show();
-
         if(Objects.equals(this.gamemode, "0"))
         {
             player = Player.X;
             your_turn = true;
-        }else
+        }else if(Objects.equals(this.gamemode, "1"))
         {
+            playerId = String.valueOf(System.currentTimeMillis());
+
+            ProgressDialog progressDialog = new ProgressDialog(this);
+            progressDialog.setCancelable(false);
+            progressDialog.setMessage("Waiting for opponent");
+            progressDialog.show();
+
+
             databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot)
@@ -97,13 +89,14 @@ public class Game extends AppCompatActivity {
                     DataSnapshot games = dataSnapshot.child("games");
                     for(DataSnapshot game : games.getChildren())
                     {
-                        //if room open
-                        if(game.getChildrenCount() < 3)
+                        if(game.child("players").getChildrenCount() < 2)
                         {
                             gameId = game.getKey();
-                            databaseReference.child("games").child(gameId).child(playerId).setValue(player_name);
-                            playerX.setText(player_name);
+                            databaseReference.child("games").child(gameId).child("players").child(playerId).setValue(player_name);
+                            playerO.setText(player_name);
+                            player = Player.O;
                             found = true;
+                            your_turn = false;
                         }
                     }
 
@@ -111,26 +104,41 @@ public class Game extends AppCompatActivity {
                     {
                         //create new room
                         gameId = String.valueOf(System.currentTimeMillis());
-                        databaseReference.child("games").child(gameId).child(playerId).setValue(player_name);
+                        databaseReference.child("games").child(gameId).child("players").child(playerId).setValue(player_name);
                         databaseReference.child("games").child(gameId).child("last_move").setValue("null");
-                        playerO.setText(player_name);
+                        playerX.setText(player_name);
+                        player = Player.X;
                         found = true;
+                        your_turn = true;
                     }
-                }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    DatabaseReference match = databaseReference.child("games").child(gameId).getRef();
+                    Log.d("matchInfo", String.valueOf(match));
+                    match.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            Log.d("matchInfo", String.valueOf(dataSnapshot));
 
-                }
-            });
+                            int getOpponentsCount = (int)dataSnapshot.child("players").getChildrenCount();
+                            if(getOpponentsCount == 2)
+                            {
+                                for (DataSnapshot player : dataSnapshot.child("players").getChildren())
+                                {
+                                    if(!Objects.equals(player.getKey(), playerId))
+                                    {
+                                        playerO.setText(String.valueOf(player.getValue()));
+                                    }
+                                }
 
-            DatabaseReference match = databaseReference.child("games").child(gameId);
-            match.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    Log.d("test", dataSnapshot.child(gameId).getKey());
-                    Log.d("test", (String) dataSnapshot.child(gameId).getValue());
+                                progressDialog.dismiss();
+                            }
 
+                        }
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
                 }
 
                 @Override
@@ -154,21 +162,6 @@ public class Game extends AppCompatActivity {
         return board[0][2] == board[1][1] && board[1][1] == board[2][0] && board[0][2] != 0;
     }
 
-    private void showAlert(String message)
-    {
-        AlertDialog alertDialog = new AlertDialog.Builder(Game.this).create();
-        alertDialog.setTitle("Alert Dialog");
-        alertDialog.setMessage(message);
-
-        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(getApplicationContext(), "You clicked on OK", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        alertDialog.show();
-    }
-
 
     public void onClick(View view)
     {
@@ -180,10 +173,10 @@ public class Game extends AppCompatActivity {
 
         if(your_turn && board[i][j] == 0)
         {
-            TextView playerX = (TextView) findViewById(R.id.player_1_text);
-            TextView playerO = (TextView) findViewById(R.id.player_2_text);
-            String playerX_text = player == Player.X ? "grasz" : "";
-            String playerO_text = player == Player.O ? "grasz" : "";
+            TextView playerX = findViewById(R.id.player_1_text);
+            TextView playerO = findViewById(R.id.player_2_text);
+            String playerX_text = player == Player.X ? turn : "";
+            String playerO_text = player == Player.O ? turn : "";
             playerX.setText(playerX_text);
             playerO.setText(playerO_text);
 
@@ -222,11 +215,9 @@ public class Game extends AppCompatActivity {
 
     private Boolean checkForTie()
     {
-        for(int i = 0; i < board.length; i++)
-        {
-            for(int j = 0; j < board[i].length; j++)
-            {
-                if(board[i][j] == 0) return false;
+        for (int[] ints : board) {
+            for (int anInt : ints) {
+                if (anInt == 0) return false;
             }
         }
         return true;

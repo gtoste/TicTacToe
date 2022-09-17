@@ -22,6 +22,9 @@ public class Naming extends AppCompatActivity {
         if (extras != null) {
             gamemode = extras.getString("gamemode");
         }
+
+        Button playButton = findViewById(R.id.playButton);
+        playButton.setOnClickListener(this::play);
     }
 
     public void play(View v){
