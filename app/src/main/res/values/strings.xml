@@ -6,4 +6,8 @@
     <string name="menu_2">Online</string>
     <string name="namingButton">Play</string>
     <string name="namingInputText">Nickname…</string>
+    <string name="player_1">Player 1</string>
+    <string name="circle">circle</string>
+    <string name="player_2">Player 2</string>
+    <string name="x">X</string>
 </resources>
